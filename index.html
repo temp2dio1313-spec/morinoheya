@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forest Study Room</title>
+    <style>
+        :root {
+            /* 森の雰囲気に馴染むディープグリーンとアースカラー */
+            --card-bg: rgba(25, 35, 30, 0.55);
+            --text-main: #f4f7f5;
+            --text-sub: #b8c7bf;
+            --accent: #c2e0c6; /* 新緑のような淡いグリーンゴールド */
+            --accent-hover: #a3dba9;
+            --wood: rgba(107, 122, 113, 0.7);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
+        }
+
+        body {
+            background-image: url('mori.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            
+            color: var(--text-main);
+            display: flex;
+            justify-content: flex-start; /* 左側に寄せて右側の背景を見せる */
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 10% 40px 8%; /* 画面端に適度な余白 */
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.25); /* 森の光を活かすため少し明るめに調整 */
+            z-index: 0;
+        }
+
+        /* 音楽コントロールボタン */
+        .audio-control {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 10;
+            background: rgba(20, 30, 25, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            color: var(--text-main);
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+        }
+        .audio-control:hover {
+            background: rgba(20, 30, 25, 0.8);
+            border-color: var(--accent);
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 440px; /* 少しスリムにして背景の邪魔をしないように */
+            background: var(--card-bg);
+            
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            
+            border-radius: 24px;
+            padding: 40px 35px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            font-weight: 300;
+            letter-spacing: 5px;
+            margin-bottom: 30px;
+            color: var(--text-sub);
+            text-transform: uppercase;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 30px;
+            padding: 4px;
+            margin-bottom: 30px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            padding: 10px 5px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--wood);
+            color: var(--text-main);
+            font-weight: bold;
+        }
+
+        .timer-display {
+            font-size: 5.5rem;
+            font-weight: 100;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 1px;
+            margin: 10px 0;
+            color: #ffffff;
+            text-shadow: 0 2px 15px rgba(0,0,0,0.2);
+        }
+
+        .status-label {
+            font-size: 0.85rem;
+            color: var(--accent);
+            letter-spacing: 1.5px;
+            height: 20px;
+            margin-bottom: 10px;
+        }
+
+        .custom-input-wrap {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .custom-input-wrap.show {
+            display: flex;
+        }
+
+        .custom-input {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: var(--text-main);
+            padding: 8px;
+            width: 70px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1rem;
+        }
+        .custom-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--text-main);
+            padding: 12px 30px;
+            font-size: 0.9rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #19231e;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(194,224,198,0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn:hover:not(.btn-primary) {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--text-main);
+            transform: translateY(-1px);
+        }
+
+        .log-section {
+            margin-top: 35px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 25px;
+            text-align: left;
+        }
+
+        .log-title {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .log-list {
+            list-style: none;
+            max-height: 110px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+        }
+
+        .log-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .log-list::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.15);
+            border-radius: 2px;
+        }
+
+        .log-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            color: var(--text-sub);
+        }
+
+        .log-item span:last-child {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        /* 画面幅が狭いスマホ用の調整 */
+        @media (max-width: 768px) {
+            body {
+                justify-content: center;
+                padding: 20px;
+            }
+            .audio-control {
+                position: absolute;
+                top: 15px;
+                right: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<audio id="bgm" src="mori.mp3" loop></audio>
+
+<button class="audio-control" id="audioBtn" onclick="toggleBGM()">BGM: OFF</button>
+
+<div class="container">
+    <h1>Forest Room</h1>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchMode('pomodoro')">ポモドーロ</button>
+        <button class="tab-btn" onclick="switchMode('stopwatch')">ストップウォッチ</button>
+        <button class="tab-btn" onclick="switchMode('custom')">カスタム</button>
+    </div>
+
+    <div class="status-label" id="statusLabel">静かに始めましょう</div>
+
+    <div class="timer-display" id="timerDisplay">25:00</div>
+
+    <div class="custom-input-wrap" id="customInputWrap">
+        <input type="number" id="customMin" class="custom-input" min="1" max="180" value="45"> 分
+        <button class="btn" style="padding: 5px 15px; min-width: auto; font-size: 0.8rem;" onclick="setCustomTime()">設定</button>
+    </div>
+
+    <div class="controls">
+        <button class="btn btn-primary" id="startBtn" onclick="toggleTimer()">START</button>
+        <button class="btn" id="resetBtn" onclick="resetTimer()">RESET</button>
+    </div>
+
+    <div class="log-section">
+        <div class="log-title">
+            <span>本日のログ</span>
+            <span id="totalTime">総学習時間: 0分</span>
+        </div>
+        <ul class="log-list" id="logList"></ul>
+    </div>
+</div>
+
+<script>
+    let currentMode = 'pomodoro';
+    let timerState = 'stopped';
+    let intervalId = null;
+    
+    let timeLeft = 25 * 60; 
+    let stopwatchSeconds = 0;
+    let initialSeconds = 25 * 60;
+    let isPomoWork = true;
+    let totalStudyMinutes = 0;
+
+    const display = document.getElementById('timerDisplay');
+    const startBtn = document.getElementById('startBtn');
+    const statusLabel = document.getElementById('statusLabel');
+    const customInputWrap = document.getElementById('customInputWrap');
+    const logList = document.getElementById('logList');
+    const totalTimeDisp = document.getElementById('totalTime');
+    const bgm = document.getElementById('bgm');
+    const audioBtn = document.getElementById('audioBtn');
+
+    function toggleBGM() {
+        if (bgm.paused) {
+            bgm.play().then(() => {
+                audioBtn.textContent = 'BGM: ON';
+            }).catch(err => {
+                console.log("BGMの再生がブロックされました。", err);
+            });
+        } else {
+            bgm.pause();
+            audioBtn.textContent = 'BGM: OFF';
+        }
+    }
+
+    function switchMode(mode) {
+        if (timerState === 'running') {
+            if (!confirm('タイマーを停止してモードを切り替えますか？')) return;
+        }
+        
+        currentMode = mode;
+        resetTimer();
+
+        document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+            btn.classList.remove('active');
+            if((mode === 'pomodoro' && idx === 0) || (mode === 'stopwatch' && idx === 1) || (mode === 'custom' && idx === 2)) {
+                btn.classList.add('active');
+            }
+        });
+
+        customInputWrap.classList.remove('show');
+        if (mode === 'pomodoro') {
+            timeLeft = 25 * 60;
+            initialSeconds = timeLeft;
+            isPomoWork = true;
+            statusLabel.textContent = 'ポモドーロ: 作業 (25分)';
+            updateDisplay(timeLeft);
+        } else if (mode === 'stopwatch') {
+            stopwatchSeconds = 0;
+            statusLabel.textContent = 'ストップウォッチ';
+            display.textContent = '00:00';
+        } else if (mode === 'custom') {
+            customInputWrap.classList.add('show');
+            statusLabel.textContent = '時間を設定してください';
+            setCustomTime();
+        }
+    }
+
+    function setCustomTime() {
+        const min = parseInt(document.getElementById('customMin').value) || 0;
+        if (min <= 0) return;
+        timeLeft = min * 60;
+        initialSeconds = timeLeft;
+        statusLabel.textContent = `カスタムタイマー (${min}分)`;
+        updateDisplay(timeLeft);
+    }
+
+    function updateDisplay(secs) {
+        const m = Math.floor(secs / 60).toString().padStart(2, '0');
+        const s = (secs % 60).toString().padStart(2, '0');
+        display.textContent = `${m}:${s}`;
+    }
+
+    function toggleTimer() {
+        if (timerState === 'running') {
+            clearInterval(intervalId);
+            timerState = 'paused';
+            startBtn.textContent = 'RESUME';
+        } else {
+            timerState = 'running';
+            startBtn.textContent = 'PAUSE';
+            
+            if (currentMode === 'stopwatch') {
+                intervalId = setInterval(runStopwatch, 1000);
+            } else {
+                intervalId = setInterval(runCountdown, 1000);
+            }
+        }
+    }
+
+    function runCountdown() {
+        if (timeLeft > 0) {
+            timeLeft--;
+            updateDisplay(timeLeft);
+        } else {
+            clearInterval(intervalId);
+            timerState = 'stopped';
+            startBtn.textContent = 'START';
+            
+            if (currentMode === 'pomodoro') {
+                if (isPomoWork) {
+                    addLog('ポモドーロ (作業)', initialSeconds);
+                    alert('お疲れ様です。25分間の集中が終了しました。5分間の休憩に入ります。');
+                    isPomoWork = false;
+                    timeLeft = 5 * 60;
+                    statusLabel.textContent = 'ポモドーロ: 休憩 (5分)';
+                    updateDisplay(timeLeft);
+                    toggleTimer();
+                } else {
+                    alert('休憩が終了しました。次のサイクルを始めましょう。');
+                    isPomoWork = true;
+                    timeLeft = 25 * 60;
+                    initialSeconds = timeLeft;
+                    statusLabel.textContent = 'ポモドーロ: 作業 (25分)';
+                    updateDisplay(timeLeft);
+                }
+            } else if (currentMode === 'custom') {
+                addLog('カスタムタイマー', initialSeconds);
+                alert('設定した時間が経過しました。');
+                resetTimer();
+            }
+        }
+    }
+
+    function runStopwatch() {
+        stopwatchSeconds++;
+        updateDisplay(stopwatchSeconds);
+    }
+
+    function resetTimer() {
+        clearInterval(intervalId);
+        timerState = 'stopped';
+        startBtn.textContent = 'START';
+
+        if (currentMode === 'stopwatch') {
+            if (stopwatchSeconds > 0) {
+                addLog('ストップウォッチ', stopwatchSeconds);
+            }
+            stopwatchSeconds = 0;
+            display.textContent = '00:00';
+        } else if (currentMode === 'pomodoro') {
+            isPomoWork = true;
+            timeLeft = 25 * 60;
+            initialSeconds = timeLeft;
+            statusLabel.textContent = 'ポモドーロ: 作業 (25分)';
+            updateDisplay(timeLeft);
+        } else if (currentMode === 'custom') {
+            setCustomTime();
+        }
+    }
+
+    function addLog(modeName, seconds) {
+        const minutes = Math.round(seconds / 60);
+        if (minutes < 1 && currentMode === 'stopwatch') return;
+
+        const now = new Date();
+        const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        
+        const li = document.createElement('li');
+        li.className = 'log-item';
+        li.innerHTML = `<span>[${timeStr}] ${modeName}</span> <span>+${minutes}分</span>`;
+        
+        logList.insertBefore(li, logList.firstChild);
+
+        if (modeName !== 'ポモドーロ (休憩)') {
+            totalStudyMinutes += minutes;
+            totalTimeDisp.textContent = `総学習時間: ${totalStudyMinutes}分`;
+        }
+    }
+</script>
+
+</body>
+</html>
