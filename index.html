@@ -6,11 +6,10 @@
     <title>Forest Study Room</title>
     <style>
         :root {
-            /* 森の雰囲気に馴染むディープグリーンとアースカラー */
-            --card-bg: rgba(25, 35, 30, 0.55);
+            --card-bg: rgba(25, 35, 30, 0.6);
             --text-main: #f4f7f5;
             --text-sub: #b8c7bf;
-            --accent: #c2e0c6; /* 新緑のような淡いグリーンゴールド */
+            --accent: #c2e0c6;
             --accent-hover: #a3dba9;
             --wood: rgba(107, 122, 113, 0.7);
         }
@@ -31,10 +30,10 @@
             
             color: var(--text-main);
             display: flex;
-            justify-content: flex-start; /* 左側に寄せて右側の背景を見せる */
-            align-items: center;
+            justify-content: center; /* 水平方向の真ん中 */
+            align-items: flex-end;    /* 画面の下（机の上を想定した位置）に配置 */
             min-height: 100vh;
-            padding: 40px 10% 40px 8%; /* 画面端に適度な余白 */
+            padding: 40px 20px 80px 20px; /* 下側に少し広めの余白を持たせてバランスを調整 */
             position: relative;
         }
 
@@ -42,7 +41,7 @@
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.25); /* 森の光を活かすため少し明るめに調整 */
+            background: rgba(0, 0, 0, 0.25);
             z-index: 0;
         }
 
@@ -72,24 +71,24 @@
             position: relative;
             z-index: 1;
             width: 100%;
-            max-width: 440px; /* 少しスリムにして背景の邪魔をしないように */
+            max-width: 460px;
             background: var(--card-bg);
             
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             
             border-radius: 24px;
-            padding: 40px 35px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+            padding: 35px 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.08);
             text-align: center;
         }
 
         h1 {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 300;
             letter-spacing: 5px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             color: var(--text-sub);
             text-transform: uppercase;
         }
@@ -99,7 +98,7 @@
             background: rgba(0, 0, 0, 0.25);
             border-radius: 30px;
             padding: 4px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         .tab-btn {
@@ -143,7 +142,7 @@
             justify-content: center;
             align-items: center;
             gap: 10px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .custom-input-wrap.show {
@@ -169,7 +168,7 @@
             display: flex;
             justify-content: center;
             gap: 15px;
-            margin-top: 25px;
+            margin-top: 20px;
         }
 
         .btn {
@@ -205,9 +204,9 @@
         }
 
         .log-section {
-            margin-top: 35px;
+            margin-top: 30px;
             border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 25px;
+            padding-top: 20px;
             text-align: left;
         }
 
@@ -222,7 +221,7 @@
 
         .log-list {
             list-style: none;
-            max-height: 110px;
+            max-height: 100px;
             overflow-y: auto;
             font-size: 0.8rem;
         }
@@ -248,10 +247,10 @@
             font-weight: bold;
         }
 
-        /* 画面幅が狭いスマホ用の調整 */
+        /* スマートフォン環境では少し位置を中央に補正 */
         @media (max-width: 768px) {
             body {
-                justify-content: center;
+                align-items: center;
                 padding: 20px;
             }
             .audio-control {
